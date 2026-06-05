@@ -1,44 +1,7 @@
-import { useState, useMemo } from "react";
-
-// Firebase imports (einkommentieren wenn Firebase eingerichtet ist):
-// import { db } from "./firebase";
-// import { collection, getDocs, query, where } from "firebase/firestore";
-
-// ── Beispieldaten (später durch Firebase ersetzen) ──────────────────────────
-const MOCK_DATA = {
-  makeup: [
-    { id: 1, hersteller: "Charlotte Tilbury", produkt: "Pillow Talk Lippenstift", bewertung: 4.8 },
-    { id: 2, hersteller: "MAC", produkt: "Studio Fix Foundation", bewertung: 4.5 },
-    { id: 3, hersteller: "NYX", produkt: "Epic Ink Eyeliner", bewertung: 4.3 },
-    { id: 4, hersteller: "Fenty Beauty", produkt: "Gloss Bomb", bewertung: 4.7 },
-    { id: 5, hersteller: "L'Oréal", produkt: "Telescopic Mascara", bewertung: 4.1 },
-    { id: 6, hersteller: "Dior", produkt: "Rouge Dior Lippenstift", bewertung: 4.9 },
-  ],
-  hautpflege: [
-    { id: 1, hersteller: "La Roche-Posay", produkt: "Toleriane Reinigungsschaum", bewertung: 4.6 },
-    { id: 2, hersteller: "CeraVe", produkt: "Feuchtigkeitscreme", bewertung: 4.8 },
-    { id: 3, hersteller: "The Ordinary", produkt: "Niacinamide 10% Serum", bewertung: 4.4 },
-    { id: 4, hersteller: "Kiehl's", produkt: "Ultra Facial Cream", bewertung: 4.7 },
-    { id: 5, hersteller: "Drunk Elephant", produkt: "C-Firma Vitamin C Serum", bewertung: 4.5 },
-    { id: 6, hersteller: "Paula's Choice", produkt: "BHA Peeling", bewertung: 4.9 },
-  ],
-  haarpflege: [
-    { id: 1, hersteller: "Olaplex", produkt: "No.3 Hair Perfector", bewertung: 4.9 },
-    { id: 2, hersteller: "Kérastase", produkt: "Elixir Ultime Haaröl", bewertung: 4.7 },
-    { id: 3, hersteller: "Redken", produkt: "All Soft Shampoo", bewertung: 4.4 },
-    { id: 4, hersteller: "Moroccanoil", produkt: "Arganöl Treatment", bewertung: 4.8 },
-    { id: 5, hersteller: "Pantene", produkt: "Repair & Protect Spülung", bewertung: 4.0 },
-    { id: 6, hersteller: "Aveda", produkt: "Nutriplenish Haarmaske", bewertung: 4.6 },
-  ],
-  haushalt: [
-    { id: 1, hersteller: "Frosch", produkt: "Allzweckreiniger Limone", bewertung: 4.5 },
-    { id: 2, hersteller: "Ecover", produkt: "Geschirrspülmittel", bewertung: 4.6 },
-    { id: 3, hersteller: "Method", produkt: "Badezimmer Spray", bewertung: 4.3 },
-    { id: 4, hersteller: "Oecoplan", produkt: "Waschmittel Sensitiv", bewertung: 4.7 },
-    { id: 5, hersteller: "Sodasan", produkt: "Waschmittel Color", bewertung: 4.4 },
-    { id: 6, hersteller: "Seventh Generation", produkt: "Küchen-Reinigungstücher", bewertung: 4.2 },
-  ],
-};
+import { useState, useMemo, useEffect} from "react";
+import { db } from "./firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import ProductPage from "./ProductPage";
 
 const CATEGORY_META = {
   makeup:     { label: "Make up",    icon: "💄", accent: "#c45c5c", bg: "#fdf0f0" },
@@ -70,23 +33,21 @@ function StarRating({ value }) {
 
 export default function CategoryPage({ categoryId = "makeup", onBack }) {
   const meta = CATEGORY_META[categoryId];
-  const rawData = MOCK_DATA[categoryId] || [];
-
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState("hersteller");
   const [sortDir, setSortDir] = useState("asc");
   const [minRating, setMinRating] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Firebase-Version (später aktivieren):
-  // const [products, setProducts] = useState([]);
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     const q = query(collection(db, "products"), where("kategorie", "==", categoryId));
-  //     const snapshot = await getDocs(q);
-  //     setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-  //   };
-  //   fetchProducts();
-  // }, [categoryId]);
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+  const fetchProducts = async () => {
+       const q = query(collection(db, "products"), where("kategorie", "==", categoryId));
+       const snapshot = await getDocs(q);
+       setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+     };
+     fetchProducts();
+   }, [categoryId]);
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -98,7 +59,7 @@ export default function CategoryPage({ categoryId = "makeup", onBack }) {
   };
 
   const filtered = useMemo(() => {
-    return rawData
+    return products
       .filter((p) => {
         const q = search.toLowerCase();
         return (
@@ -115,13 +76,21 @@ export default function CategoryPage({ categoryId = "makeup", onBack }) {
         if (valA > valB) return sortDir === "asc" ? 1 : -1;
         return 0;
       });
-  }, [rawData, search, sortKey, sortDir, minRating]);
+  }, [products, search, sortKey, sortDir, minRating]);
 
   const SortIcon = ({ col }) => {
     if (sortKey !== col) return <span style={{ color: "#ccc" }}>⇅</span>;
     return <span style={{ color: meta.accent }}>{sortDir === "asc" ? "↑" : "↓"}</span>;
   };
-
+if (selectedProduct) {
+  return (
+    <ProductPage
+      product={selectedProduct}
+      categoryId={categoryId}
+      onBack={() => setSelectedProduct(null)}
+    />
+  );
+}
   return (
     <div style={{ ...styles.root, backgroundColor: meta.bg }}>
       {/* Back Button */}
@@ -209,8 +178,10 @@ export default function CategoryPage({ categoryId = "makeup", onBack }) {
               filtered.map((p, i) => (
                 <tr
                   key={p.id}
+                  onClick={() => setSelectedProduct(p)}
                   style={{
                     ...styles.tr,
+                    cursor: "pointer",
                     backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa",
                   }}
                   onMouseEnter={(e) => {

@@ -21,12 +21,7 @@ export default function HomePage() {
       <div style={styles.bgBlob1} />
       <div style={styles.bgBlob2} />
       <header style={styles.header}>
-        <div style={styles.logo}>✦ Bella</div>
-        <nav style={styles.nav}>
-          <span style={styles.navItem}>Shop</span>
-          <span style={styles.navItem}>Angebote</span>
-          <span style={styles.navItem}>Konto</span>
-        </nav>
+        <div style={styles.logo}>✦ Beautifier</div>
       </header>
       <section style={styles.hero}>
         <p style={styles.heroEyebrow}>Willkommen zurück 👋</p>
@@ -59,7 +54,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-      <footer style={styles.footer}><p>✦ Bella — Schönheit für jeden Tag</p></footer>
+      <footer style={styles.footer}><p>✦ Beautifier — Schönheit für jeden Tag</p></footer>
     </div>
   );
 }
