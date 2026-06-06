@@ -88,6 +88,16 @@ if (selectedProduct) {
       product={selectedProduct}
       categoryId={categoryId}
       onBack={() => setSelectedProduct(null)}
+      onDeleted={() => {
+        setSelectedProduct(null);
+        // Produkte neu laden
+        const fetchProducts = async () => {
+          const q = query(collection(db, "products"), where("kategorie", "==", categoryId));
+          const snapshot = await getDocs(q);
+          setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        };
+        fetchProducts();
+      }}
     />
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CategoryPage from "./CategoryPage";
+import AddProductPage from "./AddProductPage";
 
 const categories = [
   { id: "makeup",     label: "Make up",    icon: "💄", description: "Lippenstifte, Foundation & mehr", color: "#e8a0a0", accent: "#c45c5c" },
@@ -11,10 +12,15 @@ const categories = [
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [currentPage, setCurrentPage] = useState(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
   if (currentPage) {
     return <CategoryPage categoryId={currentPage} onBack={() => setCurrentPage(null)} />;
   }
+
+  if (showAddProduct) {
+  return <AddProductPage onBack={() => setShowAddProduct(false)} />;
+}
 
   return (
     <div style={styles.root}>
@@ -25,11 +31,15 @@ export default function HomePage() {
       </header>
       <section style={styles.hero}>
         <p style={styles.heroEyebrow}>Willkommen zurück 👋</p>
-        <h1 style={styles.heroTitle}>Deine Welt der<br /><span style={styles.heroAccent}>Schönheit & Pflege</span></h1>
-        <p style={styles.heroSubtitle}>Entdecke kuratierte Produkte für jeden Teil deines Alltags.</p>
-        <button style={styles.heroCta}>Jetzt entdecken →</button>
+        <h1 style={styles.heroTitle}>Genau das, was du brauchst<br /><span style={styles.heroAccent}>Schönheit & Pflege</span></h1>
       </section>
       <section style={styles.categoriesSection}>
+        <button
+  style={styles.addBtn}
+  onClick={() => setShowAddProduct(true)}
+>
+  + Produkt hinzufügen
+</button>
         <div style={styles.categoriesHeader}>
           <h2 style={styles.categoriesTitle}>Kategorien</h2>
           <div style={styles.divider} />
@@ -75,6 +85,7 @@ const styles = {
   heroCta: { backgroundColor: "#1a1a1a", color: "#faf9f7", border: "none", padding: "14px 32px", fontSize: "14px", cursor: "pointer", borderRadius: "2px" },
   categoriesSection: { padding: "40px 48px 60px", position: "relative", zIndex: 1 },
   categoriesHeader: { marginBottom: "36px" },
+  addBtn: { backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "6px", padding: "10px 20px", fontSize: "13px", fontFamily: "sans-serif", cursor: "pointer", letterSpacing: "0.05em" },
   categoriesTitle: { fontSize: "13px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#999", marginBottom: "12px", fontFamily: "sans-serif", fontWeight: 400 },
   divider: { width: "40px", height: "2px", backgroundColor: "#c45c5c" },
   grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "20px" },
