@@ -1,12 +1,9 @@
-
 name: Kosmetikapp CI
 
 on:
   push:
   pull_request:
-
-permissions:
-  contents: read
+  workflow_dispatch:
 
 jobs:
   build-and-test:
