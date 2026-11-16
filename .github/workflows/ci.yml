@@ -1,3 +1,4 @@
+
 name: Kosmetikapp CI
 
 on:
@@ -57,3 +58,20 @@ jobs:
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
           docker build -t "$REGISTRY/$IMAGE_NAME:latest" .
           docker push "$REGISTRY/$IMAGE_NAME:latest"
+
+  deploy-to-render:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: render-test
+      url: https://kosmetikapp-test.onrender.com
+
+    steps:
+      - name: Trigger Render deployment
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          curl --fail --show-error --silent \
+            --request POST "$RENDER_DEPLOY_HOOK"
